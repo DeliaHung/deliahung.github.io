@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"deliahung.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content=".NET core CAP 是一個在分散式系統中，可以讓你輕鬆實現「事件發送」達成「最終一致性」的擴充套件，它具有輕量級、易使用、高性能等特點。CAP提供了更加簡化的方式來處理EventBus中的發佈&#x2F;訂閱以及多種資料庫消息持久化的功能，搭配.NET core Service Collection只需要簡單的註冊設定，就可以輕鬆在服務中導入CAP，本文將介紹何謂CAP定理，及.NET core C">
+<meta property="og:type" content="article">
+<meta property="og:title" content=".NET core集成CAP框架，實現微服務最終一致性方案">
+<meta property="og:url" content="https://deliahung.github.io/2023/07/08/Net-Core-CAP/index.html">
+<meta property="og:site_name" content="Delia&#39;s Blog">
+<meta property="og:description" content=".NET core CAP 是一個在分散式系統中，可以讓你輕鬆實現「事件發送」達成「最終一致性」的擴充套件，它具有輕量級、易使用、高性能等特點。CAP提供了更加簡化的方式來處理EventBus中的發佈&#x2F;訂閱以及多種資料庫消息持久化的功能，搭配.NET core Service Collection只需要簡單的註冊設定，就可以輕鬆在服務中導入CAP，本文將介紹何謂CAP定理，及.NET core C">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0602.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0603.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0605.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0606.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0604.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0607.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0608.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0610.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0611.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0612.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0613.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0614.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0615.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0616.png">
+<meta property="article:published_time" content="2023-07-07T18:10:22.000Z">
+<meta property="article:modified_time" content="2023-07-18T15:51:09.107Z">
+<meta property="article:author" content="Delia Hung">
+<meta property="article:tag" content=".NET">
+<meta property="article:tag" content="微服務">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0602.png">
+
+<link rel="canonical" href="https://deliahung.github.io/2023/07/08/Net-Core-CAP/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>.NET core集成CAP框架，實現微服務最終一致性方案 | Delia's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Delia's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">菜鳥工程師小鈞的筆記</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://deliahung.github.io/2023/07/08/Net-Core-CAP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/avatar4.jpg">
+      <meta itemprop="name" content="Delia Hung">
+      <meta itemprop="description" content="菜鳥工程師小鈞的筆記">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Delia's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          .NET core集成CAP框架，實現微服務最終一致性方案
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-08 02:10:22" itemprop="dateCreated datePublished" datetime="2023-07-08T02:10:22+08:00">2023-07-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-18 23:51:09" itemprop="dateModified" datetime="2023-07-18T23:51:09+08:00">2023-07-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/NET/" itemprop="url" rel="index"><span itemprop="name">.NET</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/NET/Extension-pack/" itemprop="url" rel="index"><span itemprop="name">Extension pack</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">.NET core CAP 是一個在分散式系統中，可以讓你輕鬆實現「事件發送」達成「最終一致性」的擴充套件，它具有輕量級、易使用、高性能等特點。CAP提供了更加簡化的方式來處理EventBus中的發佈/訂閱以及多種資料庫消息持久化的功能，搭配.NET core Service Collection只需要簡單的註冊設定，就可以輕鬆在服務中導入CAP，本文將介紹何謂CAP定理，及.NET core CAP的基本用法。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="CAP定理"><a href="#CAP定理" class="headerlink" title="CAP定理"></a>CAP定理</h1><p>提到分散式系統就一定要了解CAP定理，CAP簡單來說就是在分散式系統中不可能同時滿足 <code>一致性</code>、<code>可用性</code>、<code>分區容錯性</code>，以下為wiki百科的介紹。</p>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0602.png" width=1200>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0603.png" width=400>
+
+<ul>
+<li>一致性（Consistency）：要求資料一致。</li>
+<li>可用性（Availability）：要求即時非錯誤的回應。</li>
+<li>分區容錯性（Partition tolerance）：服務之間通信出現故障，但不會影響整體系統運作。</li>
+</ul>
+<p>我們可以用簡單一點的方式理解這三點。</p>
+<p><code>一致性</code> 和 <code>可用性</code> 應該站在”使用者的角度”去看。</p>
+<p><code>分區容忍性</code> 則是”伺服器端”在遇到網路分區的問題時，選擇如何去影響使用者感知到的「一致性」和「可用性」。</p>
+<p>分散式系統在斷網的情況下，2 台服務器變成了獨立網絡，彼此無法通信，這個情況就是分區。在分區的情況下，如果要保證數據一致性和可用性的話，那就滿足分區容錯性了，所以分散式系統P(分區容錯性)是一定存在的，就必須在C(一致性)及A(可用性)上做取捨。</p>
+<h2 id="強一致性-v-s-最終一致性"><a href="#強一致性-v-s-最終一致性" class="headerlink" title="強一致性 v.s 最終一致性"></a>強一致性 v.s 最終一致性</h2><ul>
+<li><p>強一致性(CP) : 適合處理訂單、支付、庫存、會員帳密…等，資料同步高度要求的任務。</p>
+</li>
+<li><p>最終一致性(AP) : 適合處理文章、會員簡介、個人訂單、發送簡訊、email…等，短時間不一致不影響使用。</p>
+</li>
+</ul>
+<h1 id="Net-Core-CAP"><a href="#Net-Core-CAP" class="headerlink" title=".Net Core CAP"></a>.Net Core CAP</h1><h2 id="優點"><a href="#優點" class="headerlink" title="優點"></a>優點</h2><ul>
+<li><p>使用Nuget包的方式提供，只需要簡單安裝不會對現有專案有任何衝突。</p>
+</li>
+<li><p>提供多種MQ、資料庫擴充。</p>
+</li>
+<li><p>共通的Publish及Receive接口，搭配.NET core DI容器註冊，可輕鬆發送至各種MQ，也可無痛抽換，與原代碼耦合性低。</p>
+</li>
+<li><p>具有消息持久化的功能，與本地事務一同提交，使用最終一致性的同時也有足夠的可靠性。</p>
+</li>
+<li><p>人性化的儀表板，方便查看事件進度，監聽事件數量，並可重新發送、消費事件。</p>
+</li>
+<li><p>7.0版本中提供完整的效能測試結果<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/savorboard/p/cap-7-0.html">https://www.cnblogs.com/savorboard/p/cap-7-0.html</a></p>
+</li>
+<li><p>有詳細中文文件。</p>
+</li>
+<li><p>MIT協議開源，完全免費。</p>
+</li>
+</ul>
+<h2 id="架構"><a href="#架構" class="headerlink" title="架構"></a>架構</h2><img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0605.png" width=1200>
+
+<ol>
+<li>Service A會在資料庫建立消息表，用來記錄及跟踪消息內容及狀態。</li>
+<li>Service A 接收到請求後，處理完業務邏輯，與即將發布消息一同寫入本地資料庫中。</li>
+<li>成功寫入後將消息發送至MQ，如果消息發送失敗可依據資料庫中的消息表進行重發。</li>
+<li>Service B 收到MQ中的消息先寫入資料庫中，當事件處理失敗時也可進行重新處理。</li>
+<li>最終A、B事務最終達成一致。</li>
+</ol>
+<h2 id="官方網站"><a href="#官方網站" class="headerlink" title="官方網站"></a>官方網站</h2><p><a target="_blank" rel="noopener" href="https://cap.dotnetcore.xyz/">https://cap.dotnetcore.xyz/</a></p>
+<h2 id="Github範例"><a href="#Github範例" class="headerlink" title="Github範例"></a>Github範例</h2><p><a target="_blank" rel="noopener" href="https://github.com/DeliaHung/dotnet-cap">https://github.com/DeliaHung/dotnet-cap</a></p>
+<p>模擬成立訂單後發送Email通知，建立兩個API專案分別為OrderService、MessageService</p>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0606.png" width=500>
+
+<h2 id="使用docker啟動RabbitMQ"><a href="#使用docker啟動RabbitMQ" class="headerlink" title="使用docker啟動RabbitMQ"></a>使用docker啟動RabbitMQ</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.12-management</span><br></pre></td></tr></table></figure>
+
+<p>進入rabbitmq網頁<br><a target="_blank" rel="noopener" href="http://localhost:15672/">http://localhost:15672</a></p>
+<p>預設帳號密碼皆為guest</p>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0604.png" width=1000>
+
+<h2 id="下載CAP套件"><a href="#下載CAP套件" class="headerlink" title="下載CAP套件"></a>下載CAP套件</h2><p>主要CAP庫</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PM&gt; Install-Package DotNetCore.CAP</span><br></pre></td></tr></table></figure>
+
+<p>官方提供了非常多種Message Queue</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PM&gt; Install-Package DotNetCore.CAP.Kafka</span><br><span class="line">PM&gt; Install-Package DotNetCore.CAP.RabbitMQ</span><br><span class="line">PM&gt; Install-Package DotNetCore.CAP.AzureServiceBus</span><br><span class="line">PM&gt; Install-Package DotNetCore.CAP.AmazonSQS</span><br><span class="line">PM&gt; Install-Package DotNetCore.CAP.NATS</span><br><span class="line">PM&gt; Install-Package DotNetCore.CAP.RedisStreams</span><br><span class="line">PM&gt; Install-Package DotNetCore.CAP.Pulsar</span><br></pre></td></tr></table></figure>
+
+<p>也提供了相關的數據持久化</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PM&gt; Install-Package DotNetCore.CAP.SqlServer</span><br><span class="line">PM&gt; Install-Package DotNetCore.CAP.MySql</span><br><span class="line">PM&gt; Install-Package DotNetCore.CAP.PostgreSql</span><br><span class="line">PM&gt; Install-Package DotNetCore.CAP.MongoDB </span><br></pre></td></tr></table></figure>
+
+<h2 id="註冊CAP"><a href="#註冊CAP" class="headerlink" title="註冊CAP"></a>註冊CAP</h2><p>我們使用RabbitMQ + Sql Server來示範，在program做註冊，其他細節設定官方網站都有介紹，非常清楚。</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">builder.Services.AddCap(x =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    x.UseRabbitMQ(opt =&gt; &#123;</span><br><span class="line">        opt.HostName = <span class="string">&quot;localhost&quot;</span>;</span><br><span class="line">        opt.Port = <span class="number">15672</span>;</span><br><span class="line">        opt.UserName = <span class="string">&quot;guest&quot;</span>;</span><br><span class="line">        opt.Password = <span class="string">&quot;guest&quot;</span>;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    x.UseSqlServer(opt =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        opt.ConnectionString = <span class="string">&quot;Data Source=.;Initial Catalog=CAPdemo;Integrated Security=True;TrustServerCertificate=true&quot;</span>;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="發送-Publish"><a href="#發送-Publish" class="headerlink" title="發送(Publish)"></a>發送(Publish)</h2><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">[<span class="meta">ApiController</span>]</span><br><span class="line">[<span class="meta">Route(<span class="string">&quot;[controller]&quot;</span>)</span>]</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">OrderController</span> : <span class="title">ControllerBase</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">HttpPost(Name = <span class="string">&quot;CreateOrder&quot;</span>)</span>]</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">CreateOrder</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">using</span> <span class="keyword">var</span> tran = _dbContext.Database.BeginTransaction(_capPublisher);</span><br><span class="line">        <span class="keyword">try</span></span><br><span class="line">        &#123;</span><br><span class="line">            Order order = <span class="keyword">new</span> Order();</span><br><span class="line">            order.OrderNumber = <span class="string">&quot;2023010100001&quot;</span>;</span><br><span class="line">            <span class="comment">//建立訂單完成</span></span><br><span class="line">            _dbContext.Orders.Add(order);</span><br><span class="line">            _dbContext.SaveChanges();</span><br><span class="line">            SendSmsDto sendSmsDto = <span class="keyword">new</span>() &#123; PhoneNumber = <span class="string">&quot;0987887887&quot;</span>, Content = <span class="string">&quot;使用.NET core CAP 實現微服務事件發送&quot;</span> &#125;;</span><br><span class="line">            _capPublisher.Publish(<span class="string">&quot;SendSms&quot;</span>, sendSmsDto);</span><br><span class="line">            tran.Commit();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (Exception ex)</span><br><span class="line">        &#123;</span><br><span class="line">            tran.Rollback();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">record</span> <span class="title">SendSmsDto</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> PhoneNumber &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> Content &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>事件持久化</li>
+</ul>
+<p>發送完成會發現CAP幫你建了兩個資料表，就照字面上的意思一樣，一個是發佈者(cap.Published)、一個是消費者(cap.Received)。</p>
+<p>cap.Publish內會將事件訊息持久化，目的是可以保證當Message Queue傳送異常或者網絡錯誤時候事件沒有丟失。 為了保證這種機制的可靠性，CAP「建議使用和業務代碼相同的資料庫」事務來保證業務操作和CAP的消息在持久化的過程中是強一致的。也就是說與業務代碼一同包進Transastion事務。</p>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0607.png" width=800>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0608.png" width=700>
+
+<p>RabbitMQ後台也能看到發送的內容</p>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0610.png" width=700>
+
+<h2 id="監聽-Subscribe"><a href="#監聽-Subscribe" class="headerlink" title="監聽(Subscribe)"></a>監聽(Subscribe)</h2><ol>
+<li>In Controller Action</li>
+</ol>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">[<span class="meta">NonAction</span>]</span><br><span class="line">[<span class="meta">CapSubscribe(<span class="string">&quot;SendSms&quot;</span>)</span>]</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SendSms</span>(<span class="params">SendSmsDto dto, [FromCap] CapHeader header</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    Console.WriteLine(dto.ToString());</span><br><span class="line">    Console.WriteLine(JsonSerializer.Serialize(header));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0611.png" width=700>
+
+<ol start="2">
+<li>In Business Logic Service</li>
+</ol>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">ISmsService</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Send</span>(<span class="params">SendSmsDto dto, [FromCap] CapHeader header</span>)</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SmsService</span> : <span class="title">ISmsService</span>, <span class="title">ICapSubscribe</span></span><br><span class="line">&#123;</span><br><span class="line">    [<span class="meta">CapSubscribe(<span class="string">&quot;SendSms&quot;</span>)</span>]</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Send</span>(<span class="params">SendSmsDto dto, [FromCap] CapHeader header</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//業務代碼...</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">builder.Services.AddTransient&lt;ISmsService, SmsService&gt;();</span><br><span class="line"><span class="comment">//CAP</span></span><br><span class="line">builder.Services.AddCap(x =&gt;</span><br><span class="line">.....</span><br></pre></td></tr></table></figure>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0612.png" width=700>
+
+<p>Sql Server的cap.Received一樣會有消費紀錄，這邊特地用了兩個不同的DB模擬微服務環境<br><img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0613.png" width=700></p>
+<h2 id="Dashboard"><a href="#Dashboard" class="headerlink" title="Dashboard"></a>Dashboard</h2><p>安裝</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PM&gt; Install-Package DotNetCore.Dashboard</span><br></pre></td></tr></table></figure>
+
+<p>自 5.1.0 開始，CAP Dashboard 授權預設使用 ASP.NET Core 的方式，不再提供自定義授權篩檢程式。</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">services.AddCap(options =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//options.UseDashboard();</span></span><br><span class="line">    options.UseDashboard(x =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//加上JWT就必須要有Bearer token才能進入頁面</span></span><br><span class="line">        x.UseAuth = <span class="literal">true</span>;</span><br><span class="line">        x.DefaultAuthenticationScheme = JwtBearerDefaults.AuthenticationScheme;</span><br><span class="line">        x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0614.png" width=700>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0615.png" width=700>
+
+<h2 id="消息重發設定"><a href="#消息重發設定" class="headerlink" title="消息重發設定"></a>消息重發設定</h2><p>1、 發送重試<br>第一次重試次數為 3，4分鐘后以後每分鐘重試一次，進行次數 +1，當總次數達到50次后，CAP將不對其進行重試。</p>
+<p>2、 消費重試<br>重試策略和上面的 發送重試 是相同的。</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">//自訂義</span></span><br><span class="line">builder.Services.AddCap(x =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    x.FailedRetryCount = <span class="number">10</span>;<span class="comment">//重試次數(寫入MQ失敗)</span></span><br><span class="line">    x.FailedRetryInterval = <span class="number">30</span>;<span class="comment">//重式間隔頻率</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="失敗處理"><a href="#失敗處理" class="headerlink" title="失敗處理"></a>失敗處理</h2><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">builder.Services.AddCap(x =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    x.FailedThresholdCallback = failed =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> logger = failed.ServiceProvider.GetService&lt;ILogger&gt;();</span><br><span class="line">        logger.LogError(<span class="string">$@&quot;【MqType:<span class="subst">&#123;failed.MessageType&#125;</span>失敗】【重試了<span class="subst">&#123;option.FailedRetryCount&#125;</span>次】,【消息名稱:<span class="subst">&#123;failed.Message.GetName()&#125;</span>】&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="數據清理"><a href="#數據清理" class="headerlink" title="數據清理"></a>數據清理</h2><p>資料庫消息表中具有一個 ExpiresAt 欄位表示消息的過期時間，當消息發送成功或者消費成功后，CAP會將消息狀態為 Successed 的 ExpiresAt 設置為 1天 後過期，會將消息狀態為 Failed 的 ExpiresAt 設置為 15天 後過期。</p>
+<p>CAP 預設情況下會每隔<strong>5分鐘</strong>將消息表的數據進行清理刪除，避免數據量過多導致性能的降低。 清理規則為 ExpiresAt 不為空並且小於當前時間的數據。 也就是說狀態為Failed的消息（正常情況他們已經被重試了 50 次），如果你15天沒有人工介入處理，同樣會被清理掉。 </p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">//自訂義</span></span><br><span class="line">builder.Services.AddCap(x =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    x.FailedMessageExpiredAfter = <span class="number">300</span>;<span class="comment">//失敗消息的过期时间（秒）</span></span><br><span class="line">    x.SucceedMessageExpiredAfter = <span class="number">500</span>;<span class="comment">//成功消息的过期时间（秒）</span></span><br><span class="line">    x.CollectorCleaningInterval = <span class="number">300</span>; <span class="comment">//刪除已經過期消息的時間間隔</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="命名設定"><a href="#命名設定" class="headerlink" title="命名設定"></a>命名設定</h2><ul>
+<li><p>GroupNamePrefix : 為訂閱Group統一加上前綴，以 ‘.’ 做區隔。 </p>
+</li>
+<li><p>TopicNamePrefix : 為Topic統一加上前綴，以 ‘.’ 做區隔。 </p>
+</li>
+<li><p>Version : 版本，用於給消息指定版本來隔離不同版本服務的消息。</p>
+</li>
+<li><p>DefaultGroupName : 預設Group名稱。</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">在 RabbitMQ 中映射到 Queue Names。</span><br><span class="line">在 Apache Kafka 中映射到 Consumer Group Id。</span><br><span class="line">在 Azure Service Bus 中映射到 Subscription Name。</span><br><span class="line">在 NATS 中映射到 Queue Group Name. 在 Redis Streams 中映射到 Consumer Group.</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">builder.Services.AddCap(x =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    x.DefaultGroupName = <span class="string">&quot;dev&quot;</span>;</span><br><span class="line">    x.TopicNamePrefix = <span class="string">&quot;dev&quot;</span>;</span><br><span class="line">    x.GroupNamePrefix = <span class="string">&quot;dev&quot;</span>;</span><br><span class="line">    x.Version = <span class="string">&quot;v3&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="採坑日記"><a href="#採坑日記" class="headerlink" title="採坑日記"></a>採坑日記</h2><p>如果生產者不是使用CAP發送，會沒有CAP預設的Header訊息，導致消費者(使用CAP)，Header解析時發生錯誤。當初因為公司舊專案不是.net core所以只能單純發出事件，用的是kafka，也因為踩了這個坑才知道原來kafka有Header訊息。</p>
+<ol>
+<li>可以在生產者發送事件時手動加上CAP要求的Header。<br>官方說明 : <a target="_blank" rel="noopener" href="https://cap.dotnetcore.xyz/user-guide/zh/cap/messaging/">https://cap.dotnetcore.xyz/user-guide/zh/cap/messaging/</a></li>
+</ol>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p06/p0616.png" width=700>
+
+<ol start="2">
+<li>或是在消費者專案內CustomHeaders解決。<br>官方說明 : <a target="_blank" rel="noopener" href="https://cap.dotnetcore.xyz/user-guide/zh/transport/rabbitmq/">https://cap.dotnetcore.xyz/user-guide/zh/transport/rabbitmq/</a></li>
+</ol>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">builder.Services.AddCap(x =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//kafka</span></span><br><span class="line">    x.UseKafka(x =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        x.Servers = kafkaConn;</span><br><span class="line">        x.CustomHeaders = kafkaResult =&gt; <span class="keyword">new</span> List&lt;KeyValuePair&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">new</span> KeyValuePair&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;(Headers.MessageId, SnowflakeId.Default().NextId().ToString()),</span><br><span class="line">            <span class="keyword">new</span> KeyValuePair&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;(Headers.MessageName, kafkaResult.Topic),</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//RabbitMQ</span></span><br><span class="line">    x.UseRabbitMQ(x =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        x.CustomHeaders = e =&gt; <span class="keyword">new</span> List&lt;KeyValuePair&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">new</span> KeyValuePair&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;(Headers.MessageId, SnowflakeId.Default().NextId().ToString()),</span><br><span class="line">            <span class="keyword">new</span> KeyValuePair&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;(Headers.MessageName, e.RoutingKey),</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/NET/" rel="tag"># .NET</a>
+              <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8B%99/" rel="tag"># 微服務</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/06/21/EFCore-Concurrency/" rel="prev" title="EF Core 併發處理，樂觀鎖與悲觀鎖">
+      <i class="fa fa-chevron-left"></i> EF Core 併發處理，樂觀鎖與悲觀鎖
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/07/13/EFCore-Inheritance-CodeFirst/" rel="next" title="EF Core如何使用Code-First，將繼承實體映射至資料庫">
+      EF Core如何使用Code-First，將繼承實體映射至資料庫 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CAP%E5%AE%9A%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">CAP定理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%B7%E4%B8%80%E8%87%B4%E6%80%A7-v-s-%E6%9C%80%E7%B5%82%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-number">1.1.</span> <span class="nav-text">強一致性 v.s 最終一致性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Net-Core-CAP"><span class="nav-number">2.</span> <span class="nav-text">.Net Core CAP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%84%AA%E9%BB%9E"><span class="nav-number">2.1.</span> <span class="nav-text">優點</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%B6%E6%A7%8B"><span class="nav-number">2.2.</span> <span class="nav-text">架構</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%98%E6%96%B9%E7%B6%B2%E7%AB%99"><span class="nav-number">2.3.</span> <span class="nav-text">官方網站</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Github%E7%AF%84%E4%BE%8B"><span class="nav-number">2.4.</span> <span class="nav-text">Github範例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8docker%E5%95%9F%E5%8B%95RabbitMQ"><span class="nav-number">2.5.</span> <span class="nav-text">使用docker啟動RabbitMQ</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8B%E8%BC%89CAP%E5%A5%97%E4%BB%B6"><span class="nav-number">2.6.</span> <span class="nav-text">下載CAP套件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A8%BB%E5%86%8ACAP"><span class="nav-number">2.7.</span> <span class="nav-text">註冊CAP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%99%BC%E9%80%81-Publish"><span class="nav-number">2.8.</span> <span class="nav-text">發送(Publish)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%A3%E8%81%BD-Subscribe"><span class="nav-number">2.9.</span> <span class="nav-text">監聽(Subscribe)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dashboard"><span class="nav-number">2.10.</span> <span class="nav-text">Dashboard</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%87%8D%E7%99%BC%E8%A8%AD%E5%AE%9A"><span class="nav-number">2.11.</span> <span class="nav-text">消息重發設定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%B1%E6%95%97%E8%99%95%E7%90%86"><span class="nav-number">2.12.</span> <span class="nav-text">失敗處理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B8%E6%93%9A%E6%B8%85%E7%90%86"><span class="nav-number">2.13.</span> <span class="nav-text">數據清理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E5%90%8D%E8%A8%AD%E5%AE%9A"><span class="nav-number">2.14.</span> <span class="nav-text">命名設定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A1%E5%9D%91%E6%97%A5%E8%A8%98"><span class="nav-number">2.15.</span> <span class="nav-text">採坑日記</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Delia Hung"
+      src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/avatar4.jpg">
+  <p class="site-author-name" itemprop="name">Delia Hung</p>
+  <div class="site-description" itemprop="description">菜鳥工程師小鈞的筆記</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/DeliaHung" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;DeliaHung" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pingchun.hung@gmail.com" title="E-Mail → mailto:pingchun.hung@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Delia Hung</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'e4c36709ee46ca4c2003',
+      clientSecret: '8afe402784258604f80d4d289d3c4fde9a8baef2',
+      repo        : 'deliahung.github.io',
+      owner       : 'DeliaHung',
+      admin       : ['DeliaHung'],
+      id          : '65eeba56e65728745d2b820601747ddc',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

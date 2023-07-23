@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"deliahung.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="很多人在使用Code First來完成資料庫映射往往都是一個物件對應一張表，我們其實也可以將領域物件設計成繼承關係，但關聯式資料庫只有一對一、一對多的關係，並不支援繼承，於是我們需要有一些規則來做映射，本文將介紹EF Core如何將物件導向與關聯式資料庫做映射">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EF Core如何使用Code-First，將繼承實體映射至資料庫">
+<meta property="og:url" content="https://deliahung.github.io/2023/07/13/EFCore-Inheritance-CodeFirst/index.html">
+<meta property="og:site_name" content="Delia&#39;s Blog">
+<meta property="og:description" content="很多人在使用Code First來完成資料庫映射往往都是一個物件對應一張表，我們其實也可以將領域物件設計成繼承關係，但關聯式資料庫只有一對一、一對多的關係，並不支援繼承，於是我們需要有一些規則來做映射，本文將介紹EF Core如何將物件導向與關聯式資料庫做映射">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/1.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/2.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/2.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/3.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPH/1.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPH/7.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPH/2.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPH/3.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPH/4.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPH/5.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPH/6.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPT/1.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPT/2.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPT/3.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPT/4.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPT/5.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPT/6.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPC/1.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPC/2.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPC/3.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPC/4.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPC/5.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPC/6.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPC/7.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/4.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/5.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/6.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/7.png">
+<meta property="article:published_time" content="2023-07-12T17:10:22.000Z">
+<meta property="article:modified_time" content="2023-07-18T15:51:09.107Z">
+<meta property="article:author" content="Delia Hung">
+<meta property="article:tag" content=".NET">
+<meta property="article:tag" content="EF Core">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/1.png">
+
+<link rel="canonical" href="https://deliahung.github.io/2023/07/13/EFCore-Inheritance-CodeFirst/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>EF Core如何使用Code-First，將繼承實體映射至資料庫 | Delia's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Delia's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">菜鳥工程師小鈞的筆記</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://deliahung.github.io/2023/07/13/EFCore-Inheritance-CodeFirst/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/avatar4.jpg">
+      <meta itemprop="name" content="Delia Hung">
+      <meta itemprop="description" content="菜鳥工程師小鈞的筆記">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Delia's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          EF Core如何使用Code-First，將繼承實體映射至資料庫
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-13 01:10:22" itemprop="dateCreated datePublished" datetime="2023-07-13T01:10:22+08:00">2023-07-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-07-18 23:51:09" itemprop="dateModified" datetime="2023-07-18T23:51:09+08:00">2023-07-18</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/NET/" itemprop="url" rel="index"><span itemprop="name">.NET</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/NET/EF-Core/" itemprop="url" rel="index"><span itemprop="name">EF Core</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">很多人在使用Code First來完成資料庫映射往往都是一個物件對應一張表，我們其實也可以將領域物件設計成繼承關係，但關聯式資料庫只有一對一、一對多的關係，並不支援繼承，於是我們需要有一些規則來做映射，本文將介紹EF Core如何將物件導向與關聯式資料庫做映射</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近因為看了一些有關DDD領域驅動設計的文章，於是就很好奇，如何將充血模型映射至資料庫，其中物件的繼承關係複雜時，在資料庫會是甚麼樣的結構，通過EF做查詢SQL語法會如何做轉換，所以打算親自實驗看看。</p>
+<h1 id="範例說明"><a href="#範例說明" class="headerlink" title="範例說明"></a>範例說明</h1><blockquote>
+<p>Github範例程式<br><a target="_blank" rel="noopener" href="https://github.com/DeliaHung/EFcore-Inheritance">https://github.com/DeliaHung/EFcore-Inheritance</a></p>
+</blockquote>
+<blockquote>
+<p>本篇範例參考微軟官方文件做一點簡化調整<br><a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-tw/ef/core/modeling/inheritance">https://learn.microsoft.com/zh-tw/ef/core/modeling/inheritance</a></p>
+</blockquote>
+<ul>
+<li>新增Animal、Pet抽象類別。</li>
+<li>Cat、Dog繼承Pet，Human繼承Animal。</li>
+<li>Cat、Dog、Human有相同屬性 Species(物種)。</li>
+<li>Cat、Dog、Human有各自不同屬性。</li>
+<li>Cat、Dog都有自己的主人，Human也有多個寵物，屬於多對多關係。</li>
+</ul>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/1.png" width=1200>
+
+<h2 id="建立領域物件"><a href="#建立領域物件" class="headerlink" title="建立領域物件"></a>建立領域物件</h2><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">//動物類別(抽象)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title">Animal</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="title">Animal</span>(<span class="params"><span class="built_in">string</span> name</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> Id &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="built_in">string</span> Species &#123; <span class="keyword">get</span>; &#125; <span class="comment">//物種</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//寵物類別(抽象)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title">Pet</span> : <span class="title">Animal</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="title">Pet</span>(<span class="params"><span class="built_in">string</span> name</span>)</span></span><br><span class="line"><span class="function">        : <span class="title">base</span>(<span class="params">name</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span>? Vet &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> ICollection&lt;Human&gt; Humans &#123; <span class="keyword">get</span>; &#125; = <span class="keyword">new</span> List&lt;Human&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">//貓貓</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Cat</span> : <span class="title">Pet</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Cat</span>(<span class="params"><span class="built_in">string</span> name, <span class="built_in">int</span> educationLevel</span>)</span></span><br><span class="line"><span class="function">        : <span class="title">base</span>(<span class="params">name</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        EducationLevel = educationLevel;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> EducationLevel &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">string</span> Species =&gt; <span class="string">&quot;Felis catus&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">string</span> <span class="title">ToString</span>()</span></span><br><span class="line">        =&gt; <span class="string">$&quot;Cat &#x27;<span class="subst">&#123;Name&#125;</span>&#x27; (<span class="subst">&#123;Species&#125;</span>/<span class="subst">&#123;Id&#125;</span>) with education &#x27;<span class="subst">&#123;EducationLevel&#125;</span>&#x27;&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//狗勾</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Dog</span> : <span class="title">Pet</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Dog</span>(<span class="params"><span class="built_in">string</span> name, <span class="built_in">string</span> favoriteToy</span>)</span></span><br><span class="line"><span class="function">        : <span class="title">base</span>(<span class="params">name</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        FavoriteToy = favoriteToy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> FavoriteToy &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">string</span> Species =&gt; <span class="string">&quot;Canis familiaris&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">string</span> <span class="title">ToString</span>()</span></span><br><span class="line">        =&gt; <span class="string">$&quot;Dog &#x27;<span class="subst">&#123;Name&#125;</span>&#x27; (<span class="subst">&#123;Species&#125;</span>/<span class="subst">&#123;Id&#125;</span>) with favorite toy &#x27;<span class="subst">&#123;FavoriteToy&#125;</span>&#x27;&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//人類</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Human</span> : <span class="title">Animal</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Human</span>(<span class="params"><span class="built_in">string</span> name</span>)</span></span><br><span class="line"><span class="function">        : <span class="title">base</span>(<span class="params">name</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">string</span> Species =&gt; <span class="string">&quot;Homo sapiens&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Animal? FavoriteAnimal &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> ICollection&lt;Pet&gt; Pets &#123; <span class="keyword">get</span>; &#125; = <span class="keyword">new</span> List&lt;Pet&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">string</span> <span class="title">ToString</span>()</span></span><br><span class="line">        =&gt; <span class="string">$&quot;Human &#x27;<span class="subst">&#123;Name&#125;</span>&#x27; (<span class="subst">&#123;Species&#125;</span>/<span class="subst">&#123;Id&#125;</span>) with favorite animal &#x27;<span class="subst">&#123;FavoriteAnimal?.Name ?? <span class="string">&quot;&lt;Unknown&gt;&quot;</span>&#125;</span>&#x27;&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="建立DbContext"><a href="#建立DbContext" class="headerlink" title="建立DbContext"></a>建立DbContext</h2><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestContext</span> : <span class="title">DbContext</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> DbSet&lt;Animal&gt; Animals &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> DbSet&lt;Pet&gt; Pets &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> DbSet&lt;Cat&gt; Cats &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> DbSet&lt;Dog&gt; Dogs &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> DbSet&lt;Human&gt; Humans &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnConfiguring</span>(<span class="params">DbContextOptionsBuilder optionsBuilder</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//可準備不同資料庫</span></span><br><span class="line">        optionsBuilder.UseSqlServer(<span class="string">&quot;Data Source=DESKTOP-9F0J9EK;Initial Catalog=EFInheritanceTPT;Integrated Security=True;TrustServerCertificate=True&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnModelCreating</span>(<span class="params">ModelBuilder builder</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">base</span>.OnModelCreating(builder);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>為了方便測試及觀察產生的SQL語法，這邊使用LinqPad做實驗。</p>
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
+<h2 id="LinqPad-Insert語法"><a href="#LinqPad-Insert語法" class="headerlink" title="LinqPad Insert語法"></a>LinqPad Insert語法</h2><img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/2.png" width=1200>
+
+<h2 id="LinqPad-Search語法"><a href="#LinqPad-Search語法" class="headerlink" title="LinqPad Search語法"></a>LinqPad Search語法</h2><p>&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</p>
+<h3 id="LinqPad-Insert測試"><a href="#LinqPad-Insert測試" class="headerlink" title="LinqPad Insert測試"></a>LinqPad Insert測試</h3><img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/2.png" width=1200>
+
+<h3 id="LinqPad-Search測試"><a href="#LinqPad-Search測試" class="headerlink" title="LinqPad Search測試"></a>LinqPad Search測試</h3><blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>f8b10fe1ce6bd3926e1fb440af95fe2c4ccd2134</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/3.png" width=1200>
+
+<h1 id="Code-First-繼承映射的三種方式"><a href="#Code-First-繼承映射的三種方式" class="headerlink" title="Code-First 繼承映射的三種方式"></a>Code-First 繼承映射的三種方式</h1><h2 id="1-TPH-Table-per-Class-Hierarchy"><a href="#1-TPH-Table-per-Class-Hierarchy" class="headerlink" title="1.TPH(Table per Class Hierarchy)"></a>1.TPH(Table per Class Hierarchy)</h2><blockquote>
+<p>EF Core預設</p>
+</blockquote>
+<p>一張表存放父類和子類的所有屬性，並自動生成識別器(discriminator)欄位，用來區分基類和各個子類的。優點是查詢速度快, 缺點是數據庫結構有點亂, 因為它把全部東西都塞進一個表, 會有很多nullable。</p>
+<h3 id="資料表結構"><a href="#資料表結構" class="headerlink" title="資料表結構"></a>資料表結構</h3><p>預設產生出來的Discriminator，預設為string，存入時就是子類的名稱。</p>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPH/1.png" width=400>
+
+<h3 id="設定"><a href="#設定" class="headerlink" title="設定"></a>設定</h3><blockquote>
+<p>使用Fluent API添加配置 在父類別加上UseTphMappingStrategy()。</p>
+</blockquote>
+<blockquote>
+<p>識別器可以自己指定Type及Value，也可將識別器寫在父類屬性中，依照你的程式設計需求。</p>
+</blockquote>
+<blockquote>
+<p>如果資料表有識別器無法識別的Type，會造成查詢時發生錯誤，以下例子是我自己去資料庫把Human的Type改成Type2。我們可以在設定加上IsComplete(false)，詳細設定請參考下面程式碼。</p>
+</blockquote>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPH/7.png" width=400>
+
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AnimalConfiguration</span> : <span class="title">IEntityTypeConfiguration</span>&lt;<span class="title">Animal</span>&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">EntityTypeBuilder&lt;Animal&gt; builder</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        builder.HasKey(t =&gt; t.Id);</span><br><span class="line">        builder.Property(t =&gt; t.Id).UseIdentityColumn(<span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//TPH(預設，所以可以不寫)</span></span><br><span class="line">        builder.UseTphMappingStrategy()</span><br><span class="line">            .HasDiscriminator().IsComplete(<span class="literal">false</span>);<span class="comment">//如果資料表有不存在Type，使用IsComplete(false)可防止查詢發生錯誤;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//識別器指定Type及Value。</span></span><br><span class="line">        builder.HasDiscriminator&lt;<span class="built_in">int</span>&gt;(<span class="string">&quot;AnimalType&quot;</span>)</span><br><span class="line">            .HasValue&lt;Cat&gt;(<span class="number">1</span>)</span><br><span class="line">            .HasValue&lt;Dog&gt;(<span class="number">2</span>)</span><br><span class="line">            .HasValue&lt;Human&gt;(<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//將識別器寫在類別中</span></span><br><span class="line">        builder.HasDiscriminator(d =&gt; d.AnimalType)</span><br><span class="line">            .HasValue&lt;Cat&gt;(<span class="number">1</span>)</span><br><span class="line">            .HasValue&lt;Dog&gt;(<span class="number">2</span>)</span><br><span class="line">            .HasValue&lt;Human&gt;(<span class="number">3</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="TPH寫入結果"><a href="#TPH寫入結果" class="headerlink" title="TPH寫入結果"></a>TPH寫入結果</h3><img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPH/2.png" width=600>
+
+<h3 id="TPH查詢測試"><a href="#TPH查詢測試" class="headerlink" title="TPH查詢測試"></a>TPH查詢測試</h3><img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPH/3.png" width=1200>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPH/4.png" width=1200>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPH/5.png" width=1200>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPH/6.png" width=1200>
+
+<h2 id="2-TPT-Table-per-Type"><a href="#2-TPT-Table-per-Type" class="headerlink" title="2.TPT(Table per Type)"></a>2.TPT(Table per Type)</h2><p>在TPT模式中，不管基底類別還是子類別通通都會建立一張表，這種模式下，每個表格都有一個主鍵，並且關聯的資料存放在各自對應的表格中，優點是數據庫結構好看, 不像 TPH 全部塞一個表, 又一堆 nullable. 缺點就是 query 慢. 因為每次 query 都需要 join。</p>
+<h3 id="資料表結構-1"><a href="#資料表結構-1" class="headerlink" title="資料表結構"></a>資料表結構</h3><img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPT/1.png" width=600>
+
+<h3 id="設定-1"><a href="#設定-1" class="headerlink" title="設定"></a>設定</h3><blockquote>
+<p>使用Fluent API添加配置，在父類別上加上UseTptMappingStrategy()，或是子類別全部指定Table名稱。</p>
+</blockquote>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AnimalConfiguration</span> : <span class="title">IEntityTypeConfiguration</span>&lt;<span class="title">Animal</span>&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">EntityTypeBuilder&lt;Animal&gt; builder</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        builder.HasKey(t =&gt; t.Id);</span><br><span class="line">        builder.Property(t =&gt; t.Id).UseIdentityColumn(<span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        builder.UseTptMappingStrategy();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PetConfiguration</span> : <span class="title">IEntityTypeConfiguration</span>&lt;<span class="title">Pet</span>&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">EntityTypeBuilder&lt;Pet&gt; builder</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        builder.ToTable(<span class="keyword">nameof</span>(Pet));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CatConfiguration</span> : <span class="title">IEntityTypeConfiguration</span>&lt;<span class="title">Cat</span>&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">EntityTypeBuilder&lt;Cat&gt; builder</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        builder.ToTable(<span class="keyword">nameof</span>(Cat));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">DogConfiguration</span> : <span class="title">IEntityTypeConfiguration</span>&lt;<span class="title">Dog</span>&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">EntityTypeBuilder&lt;Dog&gt; builder</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        builder.ToTable(<span class="keyword">nameof</span>(Dog));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">HumanConfiguration</span> : <span class="title">IEntityTypeConfiguration</span>&lt;<span class="title">Human</span>&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">EntityTypeBuilder&lt;Human&gt; builder</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        builder.ToTable(<span class="keyword">nameof</span>(Human));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="TPT寫入結果"><a href="#TPT寫入結果" class="headerlink" title="TPT寫入結果"></a>TPT寫入結果</h3><img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPT/2.png" width=600>
+
+<h3 id="TPT查詢測試"><a href="#TPT查詢測試" class="headerlink" title="TPT查詢測試"></a>TPT查詢測試</h3><img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPT/3.png" width=1200>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPT/4.png" width=1200>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPT/5.png" width=1200>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPT/6.png" width=1200>
+
+<h2 id="3-TPC-Table-per-Concrete-Class"><a href="#3-TPC-Table-per-Concrete-Class" class="headerlink" title="3.TPC(Table per Concrete Class)"></a>3.TPC(Table per Concrete Class)</h2><p>TPC是EF7.0才推出的，TPC 類似于 TPT 策略，不同資料表是針對階層中的每個類別所建立，但 <code>不會針對抽象類別建立資料表</code> ，基底類別中的屬性，會存在所有子類資料表裡面。 例如，每個資料表都有 Id、Name 。</p>
+<h3 id="資料表結構-2"><a href="#資料表結構-2" class="headerlink" title="資料表結構"></a>資料表結構</h3><img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPC/1.png" width=400>
+
+<h3 id="設定-2"><a href="#設定-2" class="headerlink" title="設定"></a>設定</h3><blockquote>
+<p>使用Fluent API添加配置，在父類別上加上UseTpcMappingStrategy()</p>
+</blockquote>
+<blockquote>
+<p>注意父類別Id不可使用SQL自增流水號，會造成Id重複導致Insert錯誤。</p>
+</blockquote>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AnimalConfiguration</span> : <span class="title">IEntityTypeConfiguration</span>&lt;<span class="title">Animal</span>&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">EntityTypeBuilder&lt;Animal&gt; builder</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        builder.HasKey(t =&gt; t.Id);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//TPC</span></span><br><span class="line">        builder.UseTpcMappingStrategy();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="SEQUENCE"><a href="#SEQUENCE" class="headerlink" title="SEQUENCE"></a>SEQUENCE</h3><img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPC/2.png" width=1200>
+
+<blockquote>
+<p>EF Core 要求所有實體都有唯一Key值，即使實體的類型不同也一樣，例如，Dog 不能有與 Cat 相同Key值，這表示無法使用簡單的 Identity 資料行。</p>
+</blockquote>
+<blockquote>
+<p>SQLite 不支援序列或身分識別種子&#x2F;遞增，因此搭配 TPC 策略使用 SQLite 時，不支援產生整數索引鍵值。 不過，任何資料庫都支援用戶端產生或全域唯一索引鍵，例如 GUID，包括 SQLite。</p>
+</blockquote>
+<blockquote>
+<p>如果不想用GUID，也可使用Hi-Lo模式。<br><a target="_blank" rel="noopener" href="https://vladmihalcea.com/the-hilo-algorithm/">https://vladmihalcea.com/the-hilo-algorithm/</a><br><a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-tw/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-implementation-entity-framework-core">https://learn.microsoft.com/zh-tw/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-implementation-entity-framework-core</a></p>
+</blockquote>
+<h3 id="TPC寫入結果"><a href="#TPC寫入結果" class="headerlink" title="TPC寫入結果"></a>TPC寫入結果</h3><img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPC/3.png" width=400>
+
+<h3 id="TPC查詢測試"><a href="#TPC查詢測試" class="headerlink" title="TPC查詢測試"></a>TPC查詢測試</h3><img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPC/4.png" width=1200>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPC/5.png" width=1200>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPC/6.png" width=1200>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/TPC/7.png" width=1200>
+
+<h1 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h1><p>複習一下三種結構差異</p>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/4.png" width=300>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/5.png" width=300>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/6.png" width=300>
+
+<p>Table per Type (TPT):<br>TPT模式適合在需要對繼承層次結構進行頻繁更改和擴展的情況下。每個類別都有自己獨立的資料表，讓您可以獨立管理和操作每個類別的資料。這種模式較為正規化，因為每個資料表只包含特定類別的屬性。然而，這種模式可能導致較多的資料表格， <code>需要進行較多的 JOIN 操作</code> ，並且資料庫結構相對複雜，管理和維護成本較高。</p>
+<p>Table per Hierarchy (TPH):<br>TPH模式適合在繼承層次結構相對穩定且不太會經常更改的情況下。整個繼承層次結構映射到單一資料表格，使用類型標誌（type discriminator）區分不同的類別。這種模式有 <code>較好的查詢效能和正規化特性</code> ，避免了較多的 JOIN 操作。然而，較大的資料表格可能包含一些不使用或為空的欄位，而且在繼承層次結構變動時，需要調整類型標誌。</p>
+<p>以下為官方結論:</p>
+<blockquote>
+<p>總而言之，TPH 通常適用于大部分的應用程式，如果不需要 TPC，請勿新增複雜度。如果程式碼大部分會查詢許多類型的實體，例如針對基底類型查詢，TPH會是比較好的選擇。<br>換句話說，當您的程式碼大部分會查詢單一類型的實體，TPC 是一個良好的選擇。<br>只有在受限於外部因素的情況下，才使用 TPT。</p>
+</blockquote>
+<h2 id="效能比較"><a href="#效能比較" class="headerlink" title="效能比較"></a>效能比較</h2><p><a target="_blank" rel="noopener" href="https://davecallan.com/entity-framework-7-inheritance-mapping-performance-benchmarks/">https://davecallan.com/entity-framework-7-inheritance-mapping-performance-benchmarks/</a></p>
+<p>TPH優先選擇，如果欄位真的太多太臃腫，而且太多nullable不太直覺，可以考慮換成TPC ，尤其在業務需求通常都是指定查詢某個子類別,那麼可以優先考慮TPC.</p>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p07/7.png" width=1200>
+
+<h2 id="參考文章"><a href="#參考文章" class="headerlink" title="參考文章"></a>參考文章</h2><p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-tw/ef/core/modeling/inheritance">https://learn.microsoft.com/zh-tw/ef/core/modeling/inheritance</a><br><a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-tw/ef/core/performance/modeling-for-performance#inheritance-mapping">https://learn.microsoft.com/zh-tw/ef/core/performance/modeling-for-performance#inheritance-mapping</a><br><a target="_blank" rel="noopener" href="https://www.entityframeworktutorial.net/code-first/inheritance-strategy-in-code-first.aspx">https://www.entityframeworktutorial.net/code-first/inheritance-strategy-in-code-first.aspx</a><br><a target="_blank" rel="noopener" href="https://www.entityframeworktutorial.net/code-first/inheritance-strategy-in-code-first.aspx">https://www.entityframeworktutorial.net/code-first/inheritance-strategy-in-code-first.aspx</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dotnet261010/p/8018266.html">https://www.cnblogs.com/dotnet261010/p/8018266.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/NET/" rel="tag"># .NET</a>
+              <a href="/tags/EF-Core/" rel="tag"># EF Core</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/07/08/Net-Core-CAP/" rel="prev" title=".NET core集成CAP框架，實現微服務最終一致性方案">
+      <i class="fa fa-chevron-left"></i> .NET core集成CAP框架，實現微服務最終一致性方案
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AF%84%E4%BE%8B%E8%AA%AA%E6%98%8E"><span class="nav-number">2.</span> <span class="nav-text">範例說明</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8B%E9%A0%98%E5%9F%9F%E7%89%A9%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">建立領域物件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8BDbContext"><span class="nav-number">2.2.</span> <span class="nav-text">建立DbContext</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LinqPad-Insert%E8%AA%9E%E6%B3%95"><span class="nav-number">2.3.</span> <span class="nav-text">LinqPad Insert語法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LinqPad-Search%E8%AA%9E%E6%B3%95"><span class="nav-number">2.4.</span> <span class="nav-text">LinqPad Search語法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#LinqPad-Insert%E6%B8%AC%E8%A9%A6"><span class="nav-number">2.4.1.</span> <span class="nav-text">LinqPad Insert測試</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LinqPad-Search%E6%B8%AC%E8%A9%A6"><span class="nav-number">2.4.2.</span> <span class="nav-text">LinqPad Search測試</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Code-First-%E7%B9%BC%E6%89%BF%E6%98%A0%E5%B0%84%E7%9A%84%E4%B8%89%E7%A8%AE%E6%96%B9%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">Code-First 繼承映射的三種方式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-TPH-Table-per-Class-Hierarchy"><span class="nav-number">3.1.</span> <span class="nav-text">1.TPH(Table per Class Hierarchy)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B3%87%E6%96%99%E8%A1%A8%E7%B5%90%E6%A7%8B"><span class="nav-number">3.1.1.</span> <span class="nav-text">資料表結構</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A8%AD%E5%AE%9A"><span class="nav-number">3.1.2.</span> <span class="nav-text">設定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TPH%E5%AF%AB%E5%85%A5%E7%B5%90%E6%9E%9C"><span class="nav-number">3.1.3.</span> <span class="nav-text">TPH寫入結果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TPH%E6%9F%A5%E8%A9%A2%E6%B8%AC%E8%A9%A6"><span class="nav-number">3.1.4.</span> <span class="nav-text">TPH查詢測試</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-TPT-Table-per-Type"><span class="nav-number">3.2.</span> <span class="nav-text">2.TPT(Table per Type)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B3%87%E6%96%99%E8%A1%A8%E7%B5%90%E6%A7%8B-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">資料表結構</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A8%AD%E5%AE%9A-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">設定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TPT%E5%AF%AB%E5%85%A5%E7%B5%90%E6%9E%9C"><span class="nav-number">3.2.3.</span> <span class="nav-text">TPT寫入結果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TPT%E6%9F%A5%E8%A9%A2%E6%B8%AC%E8%A9%A6"><span class="nav-number">3.2.4.</span> <span class="nav-text">TPT查詢測試</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-TPC-Table-per-Concrete-Class"><span class="nav-number">3.3.</span> <span class="nav-text">3.TPC(Table per Concrete Class)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B3%87%E6%96%99%E8%A1%A8%E7%B5%90%E6%A7%8B-2"><span class="nav-number">3.3.1.</span> <span class="nav-text">資料表結構</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A8%AD%E5%AE%9A-2"><span class="nav-number">3.3.2.</span> <span class="nav-text">設定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SEQUENCE"><span class="nav-number">3.3.3.</span> <span class="nav-text">SEQUENCE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TPC%E5%AF%AB%E5%85%A5%E7%B5%90%E6%9E%9C"><span class="nav-number">3.3.4.</span> <span class="nav-text">TPC寫入結果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TPC%E6%9F%A5%E8%A9%A2%E6%B8%AC%E8%A9%A6"><span class="nav-number">3.3.5.</span> <span class="nav-text">TPC查詢測試</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B5%90%E8%AB%96"><span class="nav-number">4.</span> <span class="nav-text">結論</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%88%E8%83%BD%E6%AF%94%E8%BC%83"><span class="nav-number">4.1.</span> <span class="nav-text">效能比較</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">4.2.</span> <span class="nav-text">參考文章</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Delia Hung"
+      src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/avatar4.jpg">
+  <p class="site-author-name" itemprop="name">Delia Hung</p>
+  <div class="site-description" itemprop="description">菜鳥工程師小鈞的筆記</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/DeliaHung" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;DeliaHung" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pingchun.hung@gmail.com" title="E-Mail → mailto:pingchun.hung@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Delia Hung</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'e4c36709ee46ca4c2003',
+      clientSecret: '8afe402784258604f80d4d289d3c4fde9a8baef2',
+      repo        : 'deliahung.github.io',
+      owner       : 'DeliaHung',
+      admin       : ['DeliaHung'],
+      id          : 'e63d43c908980c68c08c425bb5a48391',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

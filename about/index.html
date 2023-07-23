@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/favicon.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"deliahung.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="C#後端工程師，畢業於屏東大學資訊管理系，2021年9月開始工程師之路，目前年資兩年，對於程式架構方面有很大的興趣，業餘時間會去各大社群看資深前輩們技術分享教學。 參與過電商系統翻新，負責核心訂單、購物車API開發，擅長電商金流、貨態、庫存變化…等領域知識，也參與過ERP系統流程規劃、微服務架構規劃、ERP後端API開發。  位置: Taipei City, Taiwan 電話: 097108">
+<meta property="og:type" content="website">
+<meta property="og:title" content="關於我">
+<meta property="og:url" content="https://deliahung.github.io/about/index.html">
+<meta property="og:site_name" content="Delia&#39;s Blog">
+<meta property="og:description" content="C#後端工程師，畢業於屏東大學資訊管理系，2021年9月開始工程師之路，目前年資兩年，對於程式架構方面有很大的興趣，業餘時間會去各大社群看資深前輩們技術分享教學。 參與過電商系統翻新，負責核心訂單、購物車API開發，擅長電商金流、貨態、庫存變化…等領域知識，也參與過ERP系統流程規劃、微服務架構規劃、ERP後端API開發。  位置: Taipei City, Taiwan 電話: 097108">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/avatar2.jpg">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/about/2023072402.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/about/2023072403.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/about/2023072401.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/about/CAP.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p04/p0401.png">
+<meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p05/p0501.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/DeliaHung/NumberPair/main/GameImage.png">
+<meta property="article:published_time" content="2023-07-23T17:01:00.691Z">
+<meta property="article:modified_time" content="2023-07-23T17:01:00.691Z">
+<meta property="article:author" content="Delia Hung">
+<meta property="article:tag" content="Delia">
+<meta property="article:tag" content="delia">
+<meta property="article:tag" content="Delia_Csharp">
+<meta property="article:tag" content="delia_csharp">
+<meta property="article:tag" content="女裝工程師小鈞">
+<meta property="article:tag" content="小鈞">
+<meta property="article:tag" content="洪秉鈞">
+<meta property="article:tag" content="秉鈞">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/avatar2.jpg">
+
+<link rel="canonical" href="https://deliahung.github.io/about/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : false,
+    lang   : 'en'
+  };
+</script>
+
+  <title>關於我 | Delia's Blog
+</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Delia's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">菜鳥工程師小鈞的筆記</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+  
+  
+
+          <div class="content page posts-expand">
+            
+
+    
+    
+    
+    <div class="post-block" lang="en">
+      <header class="post-header">
+
+<h1 class="post-title" itemprop="name headline">關於我
+</h1>
+
+<div class="post-meta">
+  
+
+</div>
+
+</header>
+
+      
+      
+      
+      <div class="post-body">
+          <img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/avatar2.jpg" width=800>
+
+<p>C#後端工程師，畢業於屏東大學資訊管理系，2021年9月開始工程師之路，目前年資兩年，對於程式架構方面有很大的興趣，業餘時間會去各大社群看資深前輩們技術分享教學。</p>
+<p>參與過電商系統翻新，負責核心訂單、購物車API開發，擅長電商金流、貨態、庫存變化…等領域知識，也參與過ERP系統流程規劃、微服務架構規劃、ERP後端API開發。</p>
+<ul>
+<li>位置: Taipei City, Taiwan</li>
+<li>電話: 0971080029</li>
+<li>信箱: <a href="mailto:&#112;&#105;&#110;&#x67;&#x63;&#104;&#117;&#x6e;&#46;&#x68;&#x75;&#x6e;&#103;&#x40;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#46;&#99;&#111;&#109;">&#112;&#105;&#110;&#x67;&#x63;&#104;&#117;&#x6e;&#46;&#x68;&#x75;&#x6e;&#103;&#x40;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#46;&#99;&#111;&#109;</a></li>
+<li>我的履歷: <a target="_blank" rel="noopener" href="https://www.cakeresume.com/pingchun.hung">CakeResume</a></li>
+<li>GitHub: <a target="_blank" rel="noopener" href="https://github.com/DeliaHung">Deliahung</a></li>
+</ul>
+<hr>
+<h1 id="技能清單"><a href="#技能清單" class="headerlink" title="技能清單"></a>技能清單</h1><ul>
+<li>後端語言 &amp; 框架<br><code>C#</code> <code>ASP.NET Core</code> <code>ASP.NET Framwork</code> <code>WinFrom</code></li>
+<li>SQL<br><code>SQLServer</code> <code>MongoDB</code></li>
+<li>ORM<br><code>Entity Framwork</code> <code>Dapper</code> <code>ADO.NET</code></li>
+<li>前端<br><code>HTML5</code> <code>CSS3</code> <code>jQuery</code> <code>Bootstrap</code> <code>Vue.js</code></li>
+<li>版本控制<br><code>SVN</code> <code>Git</code></li>
+<li>CI&#x2F;CD<br><code>Jenkins</code> <code>Bitbucket Pipeline</code></li>
+</ul>
+<hr>
+<h1 id="工作經歷"><a href="#工作經歷" class="headerlink" title="工作經歷"></a>工作經歷</h1><h2 id="無毒農-2022-x2F-9-NOW"><a href="#無毒農-2022-x2F-9-NOW" class="headerlink" title="無毒農(2022&#x2F;9 ~ NOW)"></a>無毒農(2022&#x2F;9 ~ NOW)</h2><h3 id="MediatR導入"><a href="#MediatR導入" class="headerlink" title="MediatR導入"></a>MediatR導入</h3><p>將Controller、Service解偶，Api對應的UseCase獨立單獨Handler處理， 大幅<code>增加專案可讀性</code>、<code>可維護性</code>，同事都說讚。</p>
+<blockquote>
+<p>修改前</p>
+</blockquote>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/about/2023072402.png" width=600>
+
+<blockquote>
+<p>修改後</p>
+</blockquote>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">readonly</span> Isender _sender;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PersonController</span>(<span class="params">ISender sender</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    _sender = sender;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[<span class="meta">HttpGet</span>]</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task&lt;IActionResult&gt; <span class="title">GetPersonPage</span>(<span class="params">GetPersonPageQuery</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> _sender.send(GetPersonPageQuery)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[<span class="meta">HttpGet</span>]</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task&lt;IActionResult&gt; <span class="title">GetPersonById</span>(<span class="params">GetPersonQuery</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> _sender.send(GetPersonQuery)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[<span class="meta">HttpPost</span>]</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task&lt;IActionResult&gt; <span class="title">CreatePerson</span>(<span class="params">CreatePersonCommand</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">await</span> _sender.send(CreatePersonCommand)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/about/2023072403.png" width=400>
+
+<h3 id="UnitOfWork導入"><a href="#UnitOfWork導入" class="headerlink" title="UnitOfWork導入"></a>UnitOfWork導入</h3><p>將每個Repossitory內的SaveChange抽離出來，外面包一層Unit Of Work，<code>減少建構子注入</code>、<code>劃分服務領域</code>、<code>Transation語法更直觀</code>。</p>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/about/2023072401.png" width=600>
+
+<h3 id="NET-Core-訊息微服務建置"><a href="#NET-Core-訊息微服務建置" class="headerlink" title=".NET Core 訊息微服務建置"></a>.NET Core 訊息微服務建置</h3><p>使用.NET CAP套件，用KAFKA作為Event bus傳遞事件。<br><a target="_blank" rel="noopener" href="https://github.com/DeliaHung/dotnet-cap">本站文章連結</a></p>
+<blockquote>
+<p>整體架構</p>
+</blockquote>
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/about/CAP.png" width=600>
+
+<blockquote>
+<p>寄送簡訊設計模式</p>
+</blockquote>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> setting = _SmsSetting.Filter(_ =&gt; _.Enable).OrderBy(_ =&gt; _.Sort).ToList();</span><br><span class="line"></span><br><span class="line"><span class="keyword">foreach</span>(<span class="keyword">var</span> item <span class="keyword">in</span> settings)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> smsProvider = _smsFactory.GetSmsProvider(item.SmsProvierType);</span><br><span class="line">    <span class="comment">//紀錄log...</span></span><br><span class="line">    <span class="keyword">var</span> smsReponseDto = smsProvier.Send(smsRequestDto);</span><br><span class="line">    <span class="comment">//紀錄log...</span></span><br><span class="line">    <span class="keyword">if</span> (smsResponseDto.IsSuccess) <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="解決歷年週年慶搶購活動超賣問題"><a href="#解決歷年週年慶搶購活動超賣問題" class="headerlink" title="解決歷年週年慶搶購活動超賣問題"></a>解決歷年週年慶搶購活動超賣問題</h3><p>單機鎖lock語句、Redis鎖、樂觀鎖、悲觀鎖實作&amp;分享</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/DeliaHung/EFcore-Concurrency">本站文章連結</a></p>
+<h3 id="UnitTest導入"><a href="#UnitTest導入" class="headerlink" title="UnitTest導入"></a>UnitTest導入</h3><p>使用<code>NUnit</code> with FluentAssertions &amp; AutoFixture &amp; NSubstitute。</p>
+<h3 id="FluentValidation導入"><a href="#FluentValidation導入" class="headerlink" title="FluentValidation導入"></a>FluentValidation導入</h3><p><code>統一參數驗證方法</code>，搭配MediatR Pipeline統一處理Exception，並且<code>更好做單元測試</code>。</p>
+<h2 id="聯邦網通-2021-x2F-9-2022-x2F-9"><a href="#聯邦網通-2021-x2F-9-2022-x2F-9" class="headerlink" title="聯邦網通(2021&#x2F;9 ~ 2022&#x2F;9)"></a>聯邦網通(2021&#x2F;9 ~ 2022&#x2F;9)</h2><h3 id="電商系統翻新"><a href="#電商系統翻新" class="headerlink" title="電商系統翻新"></a>電商系統翻新</h3><p>維持原本Database、後臺系統，將邏輯層改寫為API前後分離，了解許多電商領域知識。</p>
+<h3 id="訂單、購物車API"><a href="#訂單、購物車API" class="headerlink" title="訂單、購物車API"></a>訂單、購物車API</h3><p>處理<code>折扣邏輯</code>、<code>購物車驗證</code>、<code>購物車分車邏輯</code>、<code>訂單狀態</code>、<code>庫存控制</code>。</p>
+<h3 id="金流串接"><a href="#金流串接" class="headerlink" title="金流串接"></a>金流串接</h3><p><code>聯邦串接</code>、<code>Line Pay金串接</code></p>
+<h3 id="物流串接"><a href="#物流串接" class="headerlink" title="物流串接"></a>物流串接</h3><p><code>黑貓</code></p>
+<h3 id="小工具API"><a href="#小工具API" class="headerlink" title="小工具API"></a>小工具API</h3><p>banner、館別資訊…等存入快取<code>增加讀取速度</code>。</p>
+<h3 id="聯邦年節團購網站佈署維護"><a href="#聯邦年節團購網站佈署維護" class="headerlink" title="聯邦年節團購網站佈署維護"></a>聯邦年節團購網站佈署維護</h3><p>webform的老舊專案重新佈署。</p>
+<h3 id="聯邦紅利兌換網站佈署維護"><a href="#聯邦紅利兌換網站佈署維護" class="headerlink" title="聯邦紅利兌換網站佈署維護"></a>聯邦紅利兌換網站佈署維護</h3><p>webform的老舊專案重新佈署。</p>
+<h2 id="資策會C-工程師就業養成班-2021-x2F-1-2021-x2F-8"><a href="#資策會C-工程師就業養成班-2021-x2F-1-2021-x2F-8" class="headerlink" title="資策會C#工程師就業養成班 (2021&#x2F;1 ~ 2021&#x2F;8)"></a>資策會C#工程師就業養成班 (2021&#x2F;1 ~ 2021&#x2F;8)</h2><h3 id="擔任專題技術長，負責小組畢業專題規劃，食譜-amp-購物電商"><a href="#擔任專題技術長，負責小組畢業專題規劃，食譜-amp-購物電商" class="headerlink" title="擔任專題技術長，負責小組畢業專題規劃，食譜&amp;購物電商"></a>擔任專題技術長，負責小組畢業專題規劃，食譜&amp;購物電商</h3><h3 id="專題導入三層式架構，IOC控制反轉，唯一有分層的組別"><a href="#專題導入三層式架構，IOC控制反轉，唯一有分層的組別" class="headerlink" title="專題導入三層式架構，IOC控制反轉，唯一有分層的組別"></a>專題導入三層式架構，IOC控制反轉，唯一有分層的組別</h3><hr>
+<!-- # 個人專案清單
+
+## WinForm 五子棋
+- Github連結
+https://github.com/DeliaHung/Gomoku
+
+- C#實作五子棋小遊戲，目前只有分兩層，Logic、Winform，希望未來能朝DDD方式完成專案，補上單元測試。
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p04/p0401.png" width=300>
+
+## WinForm 踩地雷
+- 資策會上課時的挑戰作業，用到遞迴判斷炸彈數量，但因為沒有分層跟OOP概念，所以寫得很醜。
+
+- Github連結
+https://github.com/DeliaHung/Landmines
+
+<img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p05/p0501.png" width=400 >
+
+## WinForm 翻牌小遊戲
+- 資策會上課時的挑戰作業，基本上沒有任何技術的硬幹寫法，沒有分層跟OOP概念，全部寫在Form.cs內，所以寫得很醜。
+
+- Github連結
+https://github.com/DeliaHung/NumberPair
+
+<img src="https://raw.githubusercontent.com/DeliaHung/NumberPair/main/GameImage.png" width=400 >
+
+--- -->
+
+<h1 id="近期學習目標"><a href="#近期學習目標" class="headerlink" title="近期學習目標"></a>近期學習目標</h1><ul>
+<li>持續練習OOP、設計模式</li>
+<li>研究 DDD、Clean Architecture</li>
+</ul>
+
+      </div>
+      
+      
+      
+    </div>
+    
+
+    
+    
+    
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%80%E8%83%BD%E6%B8%85%E5%96%AE"><span class="nav-number">1.</span> <span class="nav-text">技能清單</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E7%B6%93%E6%AD%B7"><span class="nav-number">2.</span> <span class="nav-text">工作經歷</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%84%A1%E6%AF%92%E8%BE%B2-2022-x2F-9-NOW"><span class="nav-number">2.1.</span> <span class="nav-text">無毒農(2022&#x2F;9 ~ NOW)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MediatR%E5%B0%8E%E5%85%A5"><span class="nav-number">2.1.1.</span> <span class="nav-text">MediatR導入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UnitOfWork%E5%B0%8E%E5%85%A5"><span class="nav-number">2.1.2.</span> <span class="nav-text">UnitOfWork導入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NET-Core-%E8%A8%8A%E6%81%AF%E5%BE%AE%E6%9C%8D%E5%8B%99%E5%BB%BA%E7%BD%AE"><span class="nav-number">2.1.3.</span> <span class="nav-text">.NET Core 訊息微服務建置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E6%B1%BA%E6%AD%B7%E5%B9%B4%E9%80%B1%E5%B9%B4%E6%85%B6%E6%90%B6%E8%B3%BC%E6%B4%BB%E5%8B%95%E8%B6%85%E8%B3%A3%E5%95%8F%E9%A1%8C"><span class="nav-number">2.1.4.</span> <span class="nav-text">解決歷年週年慶搶購活動超賣問題</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UnitTest%E5%B0%8E%E5%85%A5"><span class="nav-number">2.1.5.</span> <span class="nav-text">UnitTest導入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FluentValidation%E5%B0%8E%E5%85%A5"><span class="nav-number">2.1.6.</span> <span class="nav-text">FluentValidation導入</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%81%AF%E9%82%A6%E7%B6%B2%E9%80%9A-2021-x2F-9-2022-x2F-9"><span class="nav-number">2.2.</span> <span class="nav-text">聯邦網通(2021&#x2F;9 ~ 2022&#x2F;9)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%BB%E5%95%86%E7%B3%BB%E7%B5%B1%E7%BF%BB%E6%96%B0"><span class="nav-number">2.2.1.</span> <span class="nav-text">電商系統翻新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A8%82%E5%96%AE%E3%80%81%E8%B3%BC%E7%89%A9%E8%BB%8AAPI"><span class="nav-number">2.2.2.</span> <span class="nav-text">訂單、購物車API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%91%E6%B5%81%E4%B8%B2%E6%8E%A5"><span class="nav-number">2.2.3.</span> <span class="nav-text">金流串接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%A9%E6%B5%81%E4%B8%B2%E6%8E%A5"><span class="nav-number">2.2.4.</span> <span class="nav-text">物流串接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E5%B7%A5%E5%85%B7API"><span class="nav-number">2.2.5.</span> <span class="nav-text">小工具API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%AF%E9%82%A6%E5%B9%B4%E7%AF%80%E5%9C%98%E8%B3%BC%E7%B6%B2%E7%AB%99%E4%BD%88%E7%BD%B2%E7%B6%AD%E8%AD%B7"><span class="nav-number">2.2.6.</span> <span class="nav-text">聯邦年節團購網站佈署維護</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%AF%E9%82%A6%E7%B4%85%E5%88%A9%E5%85%8C%E6%8F%9B%E7%B6%B2%E7%AB%99%E4%BD%88%E7%BD%B2%E7%B6%AD%E8%AD%B7"><span class="nav-number">2.2.7.</span> <span class="nav-text">聯邦紅利兌換網站佈署維護</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B3%87%E7%AD%96%E6%9C%83C-%E5%B7%A5%E7%A8%8B%E5%B8%AB%E5%B0%B1%E6%A5%AD%E9%A4%8A%E6%88%90%E7%8F%AD-2021-x2F-1-2021-x2F-8"><span class="nav-number">2.3.</span> <span class="nav-text">資策會C#工程師就業養成班 (2021&#x2F;1 ~ 2021&#x2F;8)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%93%94%E4%BB%BB%E5%B0%88%E9%A1%8C%E6%8A%80%E8%A1%93%E9%95%B7%EF%BC%8C%E8%B2%A0%E8%B2%AC%E5%B0%8F%E7%B5%84%E7%95%A2%E6%A5%AD%E5%B0%88%E9%A1%8C%E8%A6%8F%E5%8A%83%EF%BC%8C%E9%A3%9F%E8%AD%9C-amp-%E8%B3%BC%E7%89%A9%E9%9B%BB%E5%95%86"><span class="nav-number">2.3.1.</span> <span class="nav-text">擔任專題技術長，負責小組畢業專題規劃，食譜&amp;購物電商</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%88%E9%A1%8C%E5%B0%8E%E5%85%A5%E4%B8%89%E5%B1%A4%E5%BC%8F%E6%9E%B6%E6%A7%8B%EF%BC%8CIOC%E6%8E%A7%E5%88%B6%E5%8F%8D%E8%BD%89%EF%BC%8C%E5%94%AF%E4%B8%80%E6%9C%89%E5%88%86%E5%B1%A4%E7%9A%84%E7%B5%84%E5%88%A5"><span class="nav-number">2.3.2.</span> <span class="nav-text">專題導入三層式架構，IOC控制反轉，唯一有分層的組別</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%91%E6%9C%9F%E5%AD%B8%E7%BF%92%E7%9B%AE%E6%A8%99"><span class="nav-number">3.</span> <span class="nav-text">近期學習目標</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Delia Hung"
+      src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/avatar4.jpg">
+  <p class="site-author-name" itemprop="name">Delia Hung</p>
+  <div class="site-description" itemprop="description">菜鳥工程師小鈞的筆記</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/DeliaHung" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;DeliaHung" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:pingchun.hung@gmail.com" title="E-Mail → mailto:pingchun.hung@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Delia Hung</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'e4c36709ee46ca4c2003',
+      clientSecret: '8afe402784258604f80d4d289d3c4fde9a8baef2',
+      repo        : 'deliahung.github.io',
+      owner       : 'DeliaHung',
+      admin       : ['DeliaHung'],
+      id          : '3be7aa98d992907175cbd79c194399f2',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
