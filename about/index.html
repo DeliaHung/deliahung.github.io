@@ -35,8 +35,8 @@
 <meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p04/p0401.png">
 <meta property="og:image" content="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/postImg/p05/p0501.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/DeliaHung/NumberPair/main/GameImage.png">
-<meta property="article:published_time" content="2023-07-23T17:01:00.691Z">
-<meta property="article:modified_time" content="2023-07-23T17:01:00.691Z">
+<meta property="article:published_time" content="2023-07-23T17:04:36.387Z">
+<meta property="article:modified_time" content="2023-07-23T17:04:36.387Z">
 <meta property="article:author" content="Delia Hung">
 <meta property="article:tag" content="Delia">
 <meta property="article:tag" content="delia">
@@ -237,7 +237,7 @@
 <ul>
 <li>位置: Taipei City, Taiwan</li>
 <li>電話: 0971080029</li>
-<li>信箱: <a href="mailto:&#112;&#105;&#110;&#x67;&#x63;&#104;&#117;&#x6e;&#46;&#x68;&#x75;&#x6e;&#103;&#x40;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#46;&#99;&#111;&#109;">&#112;&#105;&#110;&#x67;&#x63;&#104;&#117;&#x6e;&#46;&#x68;&#x75;&#x6e;&#103;&#x40;&#x67;&#x6d;&#x61;&#x69;&#x6c;&#46;&#99;&#111;&#109;</a></li>
+<li>信箱: <a href="mailto:&#112;&#x69;&#110;&#x67;&#99;&#104;&#117;&#x6e;&#46;&#104;&#x75;&#x6e;&#x67;&#64;&#103;&#x6d;&#97;&#105;&#x6c;&#46;&#99;&#111;&#x6d;">&#112;&#x69;&#110;&#x67;&#99;&#104;&#117;&#x6e;&#46;&#104;&#x75;&#x6e;&#x67;&#64;&#103;&#x6d;&#97;&#105;&#x6c;&#46;&#99;&#111;&#x6d;</a></li>
 <li>我的履歷: <a target="_blank" rel="noopener" href="https://www.cakeresume.com/pingchun.hung">CakeResume</a></li>
 <li>GitHub: <a target="_blank" rel="noopener" href="https://github.com/DeliaHung">Deliahung</a></li>
 </ul>
@@ -267,7 +267,7 @@
 <h3 id="UnitOfWork導入"><a href="#UnitOfWork導入" class="headerlink" title="UnitOfWork導入"></a>UnitOfWork導入</h3><p>將每個Repossitory內的SaveChange抽離出來，外面包一層Unit Of Work，<code>減少建構子注入</code>、<code>劃分服務領域</code>、<code>Transation語法更直觀</code>。</p>
 <img src="https://s3-tpe-01.russel053.com/delia/delia_tech_hexo/about/2023072401.png" width=600>
 
-<h3 id="NET-Core-訊息微服務建置"><a href="#NET-Core-訊息微服務建置" class="headerlink" title=".NET Core 訊息微服務建置"></a>.NET Core 訊息微服務建置</h3><p>使用.NET CAP套件，用KAFKA作為Event bus傳遞事件。<br><a target="_blank" rel="noopener" href="https://github.com/DeliaHung/dotnet-cap">本站文章連結</a></p>
+<h3 id="NET-Core-訊息微服務建置"><a href="#NET-Core-訊息微服務建置" class="headerlink" title=".NET Core 訊息微服務建置"></a>.NET Core 訊息微服務建置</h3><p>使用.NET CAP套件，用KAFKA作為Event bus傳遞事件。<br><a target="_blank" rel="noopener" href="https://tech.deliahung.com/2023/07/08/Net-Core-CAP/">本站文章連結</a></p>
 <blockquote>
 <p>整體架構</p>
 </blockquote>
@@ -277,8 +277,9 @@
 <p>寄送簡訊設計模式</p>
 </blockquote>
 <figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> setting = _SmsSetting.Filter(_ =&gt; _.Enable).OrderBy(_ =&gt; _.Sort).ToList();</span><br><span class="line"></span><br><span class="line"><span class="keyword">foreach</span>(<span class="keyword">var</span> item <span class="keyword">in</span> settings)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> smsProvider = _smsFactory.GetSmsProvider(item.SmsProvierType);</span><br><span class="line">    <span class="comment">//紀錄log...</span></span><br><span class="line">    <span class="keyword">var</span> smsReponseDto = smsProvier.Send(smsRequestDto);</span><br><span class="line">    <span class="comment">//紀錄log...</span></span><br><span class="line">    <span class="keyword">if</span> (smsResponseDto.IsSuccess) <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h3 id="解決歷年週年慶搶購活動超賣問題"><a href="#解決歷年週年慶搶購活動超賣問題" class="headerlink" title="解決歷年週年慶搶購活動超賣問題"></a>解決歷年週年慶搶購活動超賣問題</h3><p>單機鎖lock語句、Redis鎖、樂觀鎖、悲觀鎖實作&amp;分享</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/DeliaHung/EFcore-Concurrency">本站文章連結</a></p>
+<p><a target="_blank" rel="noopener" href="https://tech.deliahung.com/2023/06/21/EFCore-Concurrency/">本站文章連結</a></p>
 <h3 id="UnitTest導入"><a href="#UnitTest導入" class="headerlink" title="UnitTest導入"></a>UnitTest導入</h3><p>使用<code>NUnit</code> with FluentAssertions &amp; AutoFixture &amp; NSubstitute。</p>
 <h3 id="FluentValidation導入"><a href="#FluentValidation導入" class="headerlink" title="FluentValidation導入"></a>FluentValidation導入</h3><p><code>統一參數驗證方法</code>，搭配MediatR Pipeline統一處理Exception，並且<code>更好做單元測試</code>。</p>
 <h2 id="聯邦網通-2021-x2F-9-2022-x2F-9"><a href="#聯邦網通-2021-x2F-9-2022-x2F-9" class="headerlink" title="聯邦網通(2021&#x2F;9 ~ 2022&#x2F;9)"></a>聯邦網通(2021&#x2F;9 ~ 2022&#x2F;9)</h2><h3 id="電商系統翻新"><a href="#電商系統翻新" class="headerlink" title="電商系統翻新"></a>電商系統翻新</h3><p>維持原本Database、後臺系統，將邏輯層改寫為API前後分離，了解許多電商領域知識。</p>
